@@ -1,11 +1,11 @@
-package meta
+package logger
 
 import (
 	"testing"
 )
 
-func TestSet(t *testing.T) {
-	m := New()
+func TestMetaSet(t *testing.T) {
+	m := NewMeta()
 	m.Set("foo", "bar")
 
 	expected := "bar"
@@ -16,8 +16,8 @@ func TestSet(t *testing.T) {
 	}
 }
 
-func TestGet(t *testing.T) {
-	m := New()
+func TestMetaGet(t *testing.T) {
+	m := NewMeta()
 	m.Set("foo", "bar")
 
 	expected := "bar"
@@ -28,8 +28,8 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestRemove(t *testing.T) {
-	m := New()
+func TestMetaRemove(t *testing.T) {
+	m := NewMeta()
 	m.Set("foo", "bar")
 	m.Remove("foo")
 
@@ -41,7 +41,7 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func TestGetFields(t *testing.T) {
+func TestMetaGetFields(t *testing.T) {
 	var fixtures = []struct {
 		key   string
 		value string
@@ -51,7 +51,7 @@ func TestGetFields(t *testing.T) {
 		{"hello", "world"},
 	}
 
-	m := New()
+	m := NewMeta()
 
 	for _, fixture := range fixtures {
 		m.Set(fixture.key, fixture.value)

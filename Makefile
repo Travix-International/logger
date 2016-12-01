@@ -1,2 +1,3 @@
 run-tests:
-	(cd ./meta && go test -v)
+	go test -v
+	(cd ./transports/console && go test -v)

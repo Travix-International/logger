@@ -1,4 +1,4 @@
-package meta
+package logger
 
 type Meta struct {
 	Fields map[string]string
@@ -24,7 +24,7 @@ func (m *Meta) GetFields() map[string]string {
 	return m.Fields
 }
 
-func New() Meta {
+func NewMeta() Meta {
 	m := Meta{}
 	m.Fields = make(map[string]string)
 

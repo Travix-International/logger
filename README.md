@@ -54,10 +54,10 @@ func main() {
 
 ## Development
 
-Clone the repo to your $GOPATH:
+Clone the repo to your `$GOPATH`:
 
 ```
-$ git clone git@github.com:Travix-International/logger.git $GOPATH/src/Travix-International/logger
+$ git clone git@github.com:Travix-International/logger.git $GOPATH/src/github.com/Travix-International/logger
 ```
 
 Run tests:
