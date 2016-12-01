@@ -15,8 +15,8 @@ func (transport *Console) Log(entry logger.Entry) error {
 	return nil
 }
 
-func New() Console {
-	transport := Console{}
+func New() *Console {
+	transport := &Console{}
 
 	return transport
 }

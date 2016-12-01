@@ -4,14 +4,15 @@ package logger
  * Base struct
  */
 type Logger struct {
-	meta Meta
-	// transports [] // map/array of Transports
+	meta       Meta
+	transports []ITransport
 }
 
 /**
  * Transport methods
  */
-func (l *Logger) AddTransport() *Logger {
+func (l *Logger) AddTransport(transport ITransport) *Logger {
+	l.transports = append(l.transports, transport)
 
 	return l
 }
@@ -48,17 +49,25 @@ func (l *Logger) Exception(event string, err error, message string) error {
  * Common log method
  */
 func (l *Logger) Log(level string, event string, message string) error {
-	// entry := Entry{
-	// 	Level:   level,
-	// 	Event:   event,
-	// 	Message: message,
-	// 	Meta:    l.meta.GetFields(),
-	// }
+	entry := Entry{
+		Level:   level,
+		Event:   event,
+		Message: message,
+		Meta:    l.meta.GetFields(),
+	}
 
-	// loop through transports
-	// call transport.log(entry)
+	for i := 0; i < len(l.transports); i++ {
+		transport := l.transports[i]
 
-	// empty local meta
+		err := transport.Log(entry)
+
+		if err != nil {
+			l.meta = l.Meta()
+
+			return err
+		}
+	}
+
 	l.meta = l.Meta()
 
 	return nil
@@ -82,7 +91,9 @@ func (l *Logger) Meta() Meta {
  */
 func New() Logger {
 	l := Logger{}
+
 	l.meta = l.Meta()
+	l.transports = make([]ITransport, 0)
 
 	return l
 }
