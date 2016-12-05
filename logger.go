@@ -1,18 +1,28 @@
 package logger
 
+import (
+	"bytes"
+	"errors"
+	"fmt"
+	"sync"
+)
+
 /**
  * Base struct
  */
 type Logger struct {
-	meta       Meta
-	transports []ITransport
+	Meta map[string]string
+
+	transports []*Transport
 }
 
 /**
  * Transport methods
  */
-func (l *Logger) AddTransport(transport ITransport) *Logger {
-	l.transports = append(l.transports, transport)
+func (l *Logger) AddTransport(t ...*Transport) *Logger {
+	for _, transport := range t {
+		l.transports = append(l.transports, transport)
+	}
 
 	return l
 }
@@ -24,16 +34,32 @@ func (l *Logger) Debug(event string, message string) error {
 	return l.Log("Debug", event, message)
 }
 
+func (l *Logger) Debugf(event string, messageFormat string, params ...interface{}) error {
+	return l.Log("Debug", event, fmt.Sprintf(messageFormat, params...))
+}
+
 func (l *Logger) Info(event string, message string) error {
 	return l.Log("Info", event, message)
+}
+
+func (l *Logger) Infof(event string, messageFormat string, params ...interface{}) error {
+	return l.Log("Info", event, fmt.Sprintf(messageFormat, params...))
 }
 
 func (l *Logger) Warn(event string, message string) error {
 	return l.Log("Warning", event, message)
 }
 
+func (l *Logger) Warnf(event string, messageFormat string, params ...interface{}) error {
+	return l.Log("Warning", event, fmt.Sprintf(messageFormat, params...))
+}
+
 func (l *Logger) Error(event string, message string) error {
 	return l.Log("Error", event, message)
+}
+
+func (l *Logger) Errorf(event string, messageFormat string, params ...interface{}) error {
+	return l.Log("Error", event, fmt.Sprintf(messageFormat, params...))
 }
 
 func (l *Logger) Exception(event string, err error, message string) error {
@@ -45,55 +71,80 @@ func (l *Logger) Exception(event string, err error, message string) error {
 	return l.Log("Error", event, message)
 }
 
+func (l *Logger) Exceptionf(event string, err error, messageFormat string, params ...interface{}) error {
+	// @TODO: how to catch error message and stacktrace from `err`?
+
+	// @TODO: l.meta.Set("exceptionmessage", "...")
+	// @TODO: l.meta.Set("exceptiondetails", "...")
+
+	return l.Log("Error", event, fmt.Sprintf(messageFormat, params...))
+}
+
 /**
  * Common log method
  */
 func (l *Logger) Log(level string, event string, message string) error {
-	entry := Entry{
-		Level:   level,
-		Event:   event,
-		Message: message,
-		Meta:    l.meta.GetFields(),
+	entry := NewEntry(
+		level,
+		event,
+		message,
+		l.Meta,
+	)
+
+	var wg sync.WaitGroup
+	errBuff := []error{}
+	var errs error
+	e := make(chan error, 1)
+	done := make(chan bool, 1)
+
+	for _, t := range l.transports {
+		wg.Add(1)
+		go func(transport *Transport) {
+			err := transport.log(entry)
+			if err != nil {
+				e <- err
+			}
+			wg.Done()
+		}(t)
 	}
 
-	for i := 0; i < len(l.transports); i++ {
-		transport := l.transports[i]
+	go func() {
+		wg.Wait()
+		done <- true
+	}()
 
-		err := transport.Log(entry)
-
-		if err != nil {
-			l.meta = l.Meta()
-
-			return err
+out:
+	for {
+		select {
+		case err := <-e:
+			errBuff = append(errBuff, err)
+		case <-done:
+			if len(errBuff) > 0 {
+				var buf bytes.Buffer
+				for i, v := range errBuff {
+					buf.WriteString(fmt.Sprintf("Error %d: %v", i, v))
+				}
+				errs = errors.New(buf.String())
+			}
+			break out
 		}
 	}
 
-	l.meta = l.Meta()
+	if len(l.Meta) > 0 {
+		l.Meta = make(map[string]string)
+	}
 
-	return nil
-}
-
-/**
- * Meta methods
- */
-func (l *Logger) WithMeta(meta Meta) *Logger {
-	l.meta = meta
-
-	return l
-}
-
-func (l *Logger) Meta() Meta {
-	return NewMeta()
+	return errs
 }
 
 /**
  * Instantiation
  */
-func New() Logger {
-	l := Logger{}
-
-	l.meta = l.Meta()
-	l.transports = make([]ITransport, 0)
+func New() *Logger {
+	l := &Logger{
+		make(map[string]string),
+		[]*Transport{},
+	}
 
 	return l
 }

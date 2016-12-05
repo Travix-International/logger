@@ -1,5 +1,10 @@
 package logger
 
+import (
+	"bytes"
+	"fmt"
+)
+
 type Entry struct {
 	Level   string
 	Event   string
@@ -7,24 +12,21 @@ type Entry struct {
 	Meta    map[string]string
 }
 
-func (e *Entry) ToJSON() string {
-	return ""
-}
-
-func (e *Entry) ToString() string {
-	str := "[" + e.Level + "] " + e.Event + ": " + e.Message
+func (e *Entry) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("[%s] %s: %s", e.Level, e.Event, e.Message))
 
 	if len(e.Meta) > 0 {
 		for k, v := range e.Meta {
-			str += "\n" + k + ": " + v
+			buf.WriteString(fmt.Sprintf("\n%s: %s", k, v))
 		}
 	}
 
-	return str
+	return buf.String()
 }
 
-func NewEntry(level string, event string, message string, meta map[string]string) Entry {
-	entry := Entry{
+func NewEntry(level string, event string, message string, meta map[string]string) *Entry {
+	entry := &Entry{
 		Level:   level,
 		Event:   event,
 		Message: message,
