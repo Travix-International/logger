@@ -2,7 +2,6 @@ package logger
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -156,25 +155,5 @@ func TestLoggerLogf(t *testing.T) {
 				t.Errorf("expected %s, actual %s", expectedMessage, lastLog[2])
 			}
 		})
-	}
-}
-
-func TestLoggerExceptions(t *testing.T) {
-	log := New()
-	log.AddTransport(testTransport)
-
-	customErr := errors.New("Something wrong here")
-
-	err := log.Exceptionf("SomeEvent", customErr, "message...%s", "here")
-
-	if err != nil {
-		t.Errorf("error: %s", err)
-	}
-
-	expected := "Error SomeEvent message...here errormessage=Something wrong here"
-	actual := testWrite.lastLogs[0]
-
-	if expected != actual {
-		t.Errorf("expected %s, actual %s", expected, actual)
 	}
 }

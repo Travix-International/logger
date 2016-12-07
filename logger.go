@@ -62,18 +62,6 @@ func (l *Logger) Errorf(event string, messageFormat string, params ...interface{
 	return l.Log("Error", event, fmt.Sprintf(messageFormat, params...))
 }
 
-func (l *Logger) Exception(event string, err error, message string) error {
-	l.Meta["errormessage"] = fmt.Sprintf("%s", err)
-
-	return l.Log("Error", event, message)
-}
-
-func (l *Logger) Exceptionf(event string, err error, messageFormat string, params ...interface{}) error {
-	l.Meta["errormessage"] = fmt.Sprintf("%s", err)
-
-	return l.Log("Error", event, fmt.Sprintf(messageFormat, params...))
-}
-
 /**
  * Common log method
  */
