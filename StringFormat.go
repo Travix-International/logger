@@ -6,7 +6,11 @@ import (
 )
 
 type StringFormat struct {
-	levelFormat, eventFormat, messageFormat, metaKeyFormat, metaMessageFormat string
+	levelFormat       string
+	eventFormat       string
+	messageFormat     string
+	metaKeyFormat     string
+	metaMessageFormat string
 }
 
 func NewStringFormat(levelFormat, eventFormat, messageFormat, metaKeyFormat, metaMessageFormat string) *StringFormat {
@@ -40,7 +44,6 @@ func (s *StringFormat) Format(e *Entry) (out string, err error) {
 	buf.WriteString(fmt.Sprintf(s.messageFormat, e.Message))
 
 	if len(e.Meta) > 0 {
-		buf.WriteString("\n")
 		for k, v := range e.Meta {
 			buf.WriteString(fmt.Sprintf(s.metaKeyFormat, k))
 			buf.WriteString(fmt.Sprintf(s.metaMessageFormat, v))

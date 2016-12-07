@@ -10,6 +10,7 @@ import (
 type httpTransport struct {
 	client *http.Client
 	url    string
+	method string
 }
 
 var ErrNilClient = errors.New("Nil HttpClient!")
@@ -18,12 +19,15 @@ func (h *httpTransport) Write(p []byte) (n int, err error) {
 	if h == nil {
 		return 0, ErrNilClient
 	}
-	req, err := http.NewRequest("POST", h.url, bytes.NewReader(p))
+
+	req, err := http.NewRequest(h.method, h.url, bytes.NewReader(p))
+
 	if err != nil {
 		return 0, err
 	}
 
 	_, err = h.client.Do(req)
+
 	if err != nil {
 		return 0, err
 	}
@@ -31,13 +35,14 @@ func (h *httpTransport) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
-func NewHttpTransport(url string) *Transport {
+func NewHttpTransport(url string, format Formatter) *Transport {
 	ht := &httpTransport{
 		client: &http.Client{
 			Timeout: time.Second * 10,
 		},
-		url: url,
+		url:    url,
+		method: "POST",
 	}
 
-	return NewTransport(ht, DefaultJSONFormat)
+	return NewTransport(ht, format)
 }

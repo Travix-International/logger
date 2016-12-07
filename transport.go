@@ -2,7 +2,6 @@ package logger
 
 import (
 	"io"
-	"os"
 )
 
 type Transport struct {
@@ -23,12 +22,12 @@ func NewTransport(w io.Writer, f Formatter) *Transport {
 
 func (t *Transport) log(e *Entry) (err error) {
 	whatToWrite, err := t.formatter.Format(e)
+
 	if err != nil {
 		return err
 	}
+
 	_, err = t.destination.Write([]byte(whatToWrite))
 
 	return err
 }
-
-var ConsoleTransport = NewTransport(os.Stdout, DefaultStringFormat)

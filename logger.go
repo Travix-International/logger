@@ -63,19 +63,13 @@ func (l *Logger) Errorf(event string, messageFormat string, params ...interface{
 }
 
 func (l *Logger) Exception(event string, err error, message string) error {
-	// @TODO: how to catch error message and stacktrace from `err`?
-
-	// @TODO: l.meta.Set("exceptionmessage", "...")
-	// @TODO: l.meta.Set("exceptiondetails", "...")
+	l.Meta["errormessage"] = fmt.Sprintf("%s", err)
 
 	return l.Log("Error", event, message)
 }
 
 func (l *Logger) Exceptionf(event string, err error, messageFormat string, params ...interface{}) error {
-	// @TODO: how to catch error message and stacktrace from `err`?
-
-	// @TODO: l.meta.Set("exceptionmessage", "...")
-	// @TODO: l.meta.Set("exceptiondetails", "...")
+	l.Meta["errormessage"] = fmt.Sprintf("%s", err)
 
 	return l.Log("Error", event, fmt.Sprintf(messageFormat, params...))
 }
@@ -92,24 +86,30 @@ func (l *Logger) Log(level string, event string, message string) error {
 	)
 
 	var wg sync.WaitGroup
+
 	errBuff := []error{}
 	var errs error
+
 	e := make(chan error, 1)
 	done := make(chan bool, 1)
 
 	for _, t := range l.transports {
 		wg.Add(1)
+
 		go func(transport *Transport) {
 			err := transport.log(entry)
+
 			if err != nil {
 				e <- err
 			}
+
 			wg.Done()
 		}(t)
 	}
 
 	go func() {
 		wg.Wait()
+
 		done <- true
 	}()
 
@@ -121,11 +121,14 @@ out:
 		case <-done:
 			if len(errBuff) > 0 {
 				var buf bytes.Buffer
+
 				for i, v := range errBuff {
 					buf.WriteString(fmt.Sprintf("Error %d: %v", i, v))
 				}
+
 				errs = errors.New(buf.String())
 			}
+
 			break out
 		}
 	}
@@ -135,6 +138,12 @@ out:
 	}
 
 	return errs
+}
+
+func (l *Logger) Logf(level string, event string, message string, params ...interface{}) error {
+	m := fmt.Sprintf(message, params...)
+
+	return l.Log(level, event, m)
 }
 
 /**
