@@ -75,7 +75,7 @@ func TestLoggerLog(t *testing.T) {
 			case "Error":
 				err = log.Error(item.Event, item.Message)
 			default:
-				err = log.Log(item.Level, item.Event, item.Message)
+				err = log.Log(item.Level, item.Event, item.Message, map[string]string{})
 			}
 
 			if err != nil {
@@ -100,19 +100,18 @@ func TestLoggerLog(t *testing.T) {
 	}
 }
 
-func TestLoggerLogf(t *testing.T) {
+func TestLoggerLogWithMeta(t *testing.T) {
 	var tests = []struct {
 		Method  string
 		Level   string
 		Event   string
 		Message string
-		Replace string
+		Meta    map[string]string
 	}{
-		{"Debug", "Debug", "EventName", "Message...%s", "Here"},
-		{"Info", "Info", "EventName", "Message...%s", "Here"},
-		{"Warn", "Warning", "EventName", "Message...%s", "Here"},
-		{"Error", "Error", "EventName", "Message...%s", "Here"},
-		{"CustomLevel", "CustomLevel", "EventName", "Message...%s", "Here"},
+		{"Debug", "Debug", "EventName", "Message...", map[string]string{"key": "value"}},
+		{"Info", "Info", "EventName", "Message...", map[string]string{"key": "value"}},
+		{"Warn", "Warning", "EventName", "Message...", map[string]string{"key": "value"}},
+		{"Error", "Error", "EventName", "Message...", map[string]string{"key": "value"}},
 	}
 
 	log := New()
@@ -124,15 +123,15 @@ func TestLoggerLogf(t *testing.T) {
 
 			switch item.Method {
 			case "Debug":
-				err = log.Debugf(item.Event, item.Message, item.Replace)
+				err = log.DebugWithMeta(item.Event, item.Message, item.Meta)
 			case "Info":
-				err = log.Infof(item.Event, item.Message, item.Replace)
+				err = log.InfoWithMeta(item.Event, item.Message, item.Meta)
 			case "Warn":
-				err = log.Warnf(item.Event, item.Message, item.Replace)
+				err = log.WarnWithMeta(item.Event, item.Message, item.Meta)
 			case "Error":
-				err = log.Errorf(item.Event, item.Message, item.Replace)
+				err = log.ErrorWithMeta(item.Event, item.Message, item.Meta)
 			default:
-				err = log.Logf(item.Level, item.Event, item.Message, item.Replace)
+				err = log.Log(item.Level, item.Event, item.Message, item.Meta)
 			}
 
 			if err != nil {
@@ -150,9 +149,12 @@ func TestLoggerLogf(t *testing.T) {
 				t.Errorf("expected %s, actual %s", item.Event, lastLog[1])
 			}
 
-			expectedMessage := fmt.Sprintf(item.Message, item.Replace)
-			if lastLog[2] != expectedMessage {
-				t.Errorf("expected %s, actual %s", expectedMessage, lastLog[2])
+			if lastLog[2] != item.Message {
+				t.Errorf("expected %s, actual %s", item.Message, lastLog[2])
+			}
+
+			if lastLog[3] != "key=value" {
+				t.Errorf("expected %s, actual %s", "key=value", lastLog[3])
 			}
 		})
 	}

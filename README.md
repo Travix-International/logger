@@ -12,12 +12,6 @@ Use [`go get`](https://golang.org/cmd/go/):
 $ go get github.com/Travix-International/logger
 ```
 
-Or, [`gvt`](https://github.com/FiloSottile/gvt):
-
-```
-$ gvt fetch github.com/Travix-International/logger
-```
-
 ## Usage
 
 You can import the package, and set it up with one or more transports:
@@ -27,12 +21,15 @@ package main
 
 import (
     "github.com/Travix-International/logger"
-    "github.com/Travix-International/logger/transports/console"
 )
 
 func main() {
     myLogger := logger.New()
-    myLogger.AddTransport(console.New())
+    myLogger.AddTransport(logger.ConsoleTransport)
+
+    // HTTP:
+    // jsonFormat := logger.NewJSONFormat()
+    // myLogger.AddTransport(logger.NewHttpTransport(myUrl, jsonFormat))
 
     // regular logs
     myLogger.Debug("EventName", "message...")
@@ -40,15 +37,19 @@ func main() {
     myLogger.Warn("EventName", "message...")
     myLogger.Error("EventName", "message...")
 
-    // error objects
-    myLogger.Exception("EventName", err, "message...")
-
     // with meta
-    meta := myLogger.Meta()
-    meta.Set("key", "value")
-    myLogger.
-        WithMeta(meta).
-        Info("EventName", "message...")
+    meta := map[string]string {
+      "key": "value"
+    })
+    myLogger.DebugWithMeta("EventName", "message...", meta);
+    myLogger.InfoWithMeta("EventName", "message...", meta);
+    myLogger.WarnWithMeta("EventName", "message...", meta);
+    myLogger.ErrorWithMeta("EventName", "message...", meta);
+
+    // custom levels
+    myLogger.Log("CustomLevelName", "EventName", "message...", map[string]string {
+      "key": "value"
+    })
 }
 ```
 
@@ -64,6 +65,12 @@ Run tests:
 
 ```
 $ make run-tests
+```
+
+For generating coverage:
+
+```
+$ make cover
 ```
 
 ## License

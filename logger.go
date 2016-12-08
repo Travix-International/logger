@@ -11,8 +11,6 @@ import (
  * Base struct
  */
 type Logger struct {
-	Meta map[string]string
-
 	transports []*Transport
 }
 
@@ -31,46 +29,46 @@ func (l *Logger) AddTransport(t ...*Transport) *Logger {
  * Level methods
  */
 func (l *Logger) Debug(event string, message string) error {
-	return l.Log("Debug", event, message)
+	return l.Log("Debug", event, message, map[string]string{})
 }
 
-func (l *Logger) Debugf(event string, messageFormat string, params ...interface{}) error {
-	return l.Log("Debug", event, fmt.Sprintf(messageFormat, params...))
+func (l *Logger) DebugWithMeta(event string, message string, meta map[string]string) error {
+	return l.Log("Debug", event, message, meta)
 }
 
 func (l *Logger) Info(event string, message string) error {
-	return l.Log("Info", event, message)
+	return l.Log("Info", event, message, map[string]string{})
 }
 
-func (l *Logger) Infof(event string, messageFormat string, params ...interface{}) error {
-	return l.Log("Info", event, fmt.Sprintf(messageFormat, params...))
+func (l *Logger) InfoWithMeta(event string, message string, meta map[string]string) error {
+	return l.Log("Info", event, message, meta)
 }
 
 func (l *Logger) Warn(event string, message string) error {
-	return l.Log("Warning", event, message)
+	return l.Log("Warning", event, message, map[string]string{})
 }
 
-func (l *Logger) Warnf(event string, messageFormat string, params ...interface{}) error {
-	return l.Log("Warning", event, fmt.Sprintf(messageFormat, params...))
+func (l *Logger) WarnWithMeta(event string, message string, meta map[string]string) error {
+	return l.Log("Warning", event, message, meta)
 }
 
 func (l *Logger) Error(event string, message string) error {
-	return l.Log("Error", event, message)
+	return l.Log("Error", event, message, map[string]string{})
 }
 
-func (l *Logger) Errorf(event string, messageFormat string, params ...interface{}) error {
-	return l.Log("Error", event, fmt.Sprintf(messageFormat, params...))
+func (l *Logger) ErrorWithMeta(event string, message string, meta map[string]string) error {
+	return l.Log("Error", event, message, meta)
 }
 
 /**
  * Common log method
  */
-func (l *Logger) Log(level string, event string, message string) error {
+func (l *Logger) Log(level string, event string, message string, meta map[string]string) error {
 	entry := NewEntry(
 		level,
 		event,
 		message,
-		l.Meta,
+		meta,
 	)
 
 	var wg sync.WaitGroup
@@ -121,17 +119,7 @@ out:
 		}
 	}
 
-	if len(l.Meta) > 0 {
-		l.Meta = make(map[string]string)
-	}
-
 	return errs
-}
-
-func (l *Logger) Logf(level string, event string, message string, params ...interface{}) error {
-	m := fmt.Sprintf(message, params...)
-
-	return l.Log(level, event, m)
 }
 
 /**
@@ -139,7 +127,6 @@ func (l *Logger) Logf(level string, event string, message string, params ...inte
  */
 func New() *Logger {
 	l := &Logger{
-		make(map[string]string),
 		[]*Transport{},
 	}
 
