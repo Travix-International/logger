@@ -7,16 +7,11 @@ import (
 	"sync"
 )
 
-/**
- * Base struct
- */
 type Logger struct {
-	transports []*Transport
+	transports  []*Transport
+	defaultMeta map[string]string
 }
 
-/**
- * Transport methods
- */
 func (l *Logger) AddTransport(t ...*Transport) *Logger {
 	for _, transport := range t {
 		l.transports = append(l.transports, transport)
@@ -25,9 +20,6 @@ func (l *Logger) AddTransport(t ...*Transport) *Logger {
 	return l
 }
 
-/**
- * Level methods
- */
 func (l *Logger) Debug(event string, message string) error {
 	return l.Log("Debug", event, message, map[string]string{})
 }
@@ -60,15 +52,20 @@ func (l *Logger) ErrorWithMeta(event string, message string, meta map[string]str
 	return l.Log("Error", event, message, meta)
 }
 
-/**
- * Common log method
- */
 func (l *Logger) Log(level string, event string, message string, meta map[string]string) error {
+	combinedMeta := make(map[string]string)
+	for k, v := range l.defaultMeta {
+		combinedMeta[k] = v
+	}
+	for k, v := range meta {
+		combinedMeta[k] = v
+	}
+
 	entry := NewEntry(
 		level,
 		event,
 		message,
-		meta,
+		combinedMeta,
 	)
 
 	var wg sync.WaitGroup
@@ -122,13 +119,15 @@ out:
 	return errs
 }
 
-/**
- * Instantiation
- */
-func New() *Logger {
-	l := &Logger{
-		[]*Transport{},
+func New(meta map[string]string) (*Logger, error) {
+	if meta == nil {
+		return nil, errors.New("uninitialized meta provided")
 	}
 
-	return l
+	l := &Logger{
+		[]*Transport{},
+		meta,
+	}
+
+	return l, nil
 }
