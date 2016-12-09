@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -17,11 +18,12 @@ func TestStringFormat(t *testing.T) {
 		Message string
 		Meta    map[string]string
 
-		Expected string
+		Expected     string
+		ExpectedMeta [2]string
 	}{
-		{"Info", "EventName", "Message...", testMeta, "[Info] EventName: Message...\nfoo=bar\nkey=value"},
-		{"Debug", "EventName", "blah...", testMeta, "[Debug] EventName: blah...\nfoo=bar\nkey=value"},
-		{"Error", "EventName", "blah...", testMeta, "[Error] EventName: blah...\nfoo=bar\nkey=value"},
+		{"Info", "EventName", "Message...", testMeta, "[Info] EventName: Message...", [2]string{"foo=bar", "key=value"}},
+		{"Debug", "EventName", "blah...", testMeta, "[Debug] EventName: blah...", [2]string{"foo=bar", "key=value"}},
+		{"Error", "EventName", "blah...", testMeta, "[Error] EventName: blah...", [2]string{"foo=bar", "key=value"}},
 	}
 
 	for _, item := range tests {
@@ -35,8 +37,14 @@ func TestStringFormat(t *testing.T) {
 				t.Errorf("error: %s", err)
 			}
 
-			if expected != actual {
-				t.Errorf("expected %s, actual %s", expected, actual)
+			if strings.HasPrefix(actual, expected) != true {
+				t.Errorf("expected to begin with %s, actual %s", expected, actual)
+			}
+
+			for _, m := range item.ExpectedMeta {
+				if strings.Index(actual, m) == -1 {
+					t.Errorf("expected to find meta %s, actual %s", m, actual)
+				}
 			}
 		})
 	}
