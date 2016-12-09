@@ -24,7 +24,8 @@ import (
 )
 
 func main() {
-    myLogger := logger.New()
+    defaultMeta := make(map[string]string)
+    myLogger := logger.New(defaultMeta)
     myLogger.AddTransport(logger.ConsoleTransport)
 
     // HTTP:

@@ -12,7 +12,7 @@ import (
  */
 type Logger struct {
 	transports  []*Transport
-	DefaultMeta map[string]string
+	defaultMeta map[string]string
 }
 
 /**
@@ -22,12 +22,6 @@ func (l *Logger) AddTransport(t ...*Transport) *Logger {
 	for _, transport := range t {
 		l.transports = append(l.transports, transport)
 	}
-
-	return l
-}
-
-func (l *Logger) SetDefaultMeta(meta map[string]string) *Logger {
-	l.DefaultMeta = meta
 
 	return l
 }
@@ -72,7 +66,7 @@ func (l *Logger) ErrorWithMeta(event string, message string, meta map[string]str
  */
 func (l *Logger) Log(level string, event string, message string, meta map[string]string) error {
 	combinedMeta := make(map[string]string)
-	for k, v := range l.DefaultMeta {
+	for k, v := range l.defaultMeta {
 		combinedMeta[k] = v
 	}
 	for k, v := range meta {
@@ -140,10 +134,10 @@ out:
 /**
  * Instantiation
  */
-func New() *Logger {
+func New(meta map[string]string) *Logger {
 	l := &Logger{
 		[]*Transport{},
-		make(map[string]string),
+		meta,
 	}
 
 	return l
