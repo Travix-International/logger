@@ -17,7 +17,7 @@ func TestHttpTransportWithFakeServer(t *testing.T) {
 	jsonFormat := NewJSONFormat()
 	ht := NewHttpTransport(testServer.URL, jsonFormat)
 
-	log := New(make(map[string]string))
+	log, _ := New(make(map[string]string))
 	log.AddTransport(ht)
 
 	err := log.Info("SomeEvent", "Message...")
@@ -31,7 +31,7 @@ func TestHttpTransportWithNoServer(t *testing.T) {
 	jsonFormat := NewJSONFormat()
 	ht := NewHttpTransport("http://test-go.travix.com/post", jsonFormat)
 
-	log := New(make(map[string]string))
+	log, _ := New(make(map[string]string))
 	log.AddTransport(ht)
 
 	err := log.Info("SomeEvent", "Message...")

@@ -119,11 +119,15 @@ out:
 	return errs
 }
 
-func New(meta map[string]string) *Logger {
+func New(meta map[string]string) (*Logger, error) {
+	if meta == nil {
+		return nil, errors.New("uninitialized meta provided")
+	}
+
 	l := &Logger{
 		[]*Transport{},
 		meta,
 	}
 
-	return l
+	return l, nil
 }

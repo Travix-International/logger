@@ -58,7 +58,7 @@ func TestLoggerLog(t *testing.T) {
 		{"Error", "Error", "EventName", "Message..."},
 	}
 
-	log := New(make(map[string]string))
+	log, _ := New(make(map[string]string))
 	log.AddTransport(testTransport)
 
 	for _, item := range tests {
@@ -114,7 +114,7 @@ func TestLoggerLogWithMeta(t *testing.T) {
 		{"Error", "Error", "EventName", "Message...", map[string]string{"key": "value"}},
 	}
 
-	log := New(make(map[string]string))
+	log, _ := New(make(map[string]string))
 	log.AddTransport(testTransport)
 
 	for _, item := range tests {
@@ -161,7 +161,7 @@ func TestLoggerLogWithMeta(t *testing.T) {
 }
 
 func TestLoggerWithDefaultMeta(t *testing.T) {
-	log := New(map[string]string{
+	log, _ := New(map[string]string{
 		"defaultKey": "defaultValue",
 	})
 	log.AddTransport(testTransport)
@@ -189,5 +189,14 @@ func TestLoggerWithDefaultMeta(t *testing.T) {
 
 	if lastLog[3] != "defaultKey=defaultValue" {
 		t.Errorf("expected %s, actual %s", "defaultKey=defaultValue", lastLog[3])
+	}
+}
+
+func TestLoggerWithNilMeta(t *testing.T) {
+	var meta map[string]string
+	_, err := New(meta)
+
+	if err == nil {
+		t.Error("expected error with uninitialized meta")
 	}
 }
