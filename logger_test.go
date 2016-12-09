@@ -159,3 +159,37 @@ func TestLoggerLogWithMeta(t *testing.T) {
 		})
 	}
 }
+
+func TestLoggerWithDefaultMeta(t *testing.T) {
+	log := New()
+	log.AddTransport(testTransport)
+
+	log.SetDefaultMeta(map[string]string{
+		"defaultKey": "defaultValue",
+	})
+
+	err := log.Info("SomeEvent", "Message")
+
+	if err != nil {
+		t.Errorf("error: %s", err)
+	}
+
+	lastLog := strings.Split(testWrite.lastLogs[0], " ")
+	testWrite.clearLogs()
+
+	if lastLog[0] != "Info" {
+		t.Errorf("expected %s, actual %s", "Info", lastLog[0])
+	}
+
+	if lastLog[1] != "SomeEvent" {
+		t.Errorf("expected %s, actual %s", "SomeEvent", lastLog[1])
+	}
+
+	if lastLog[2] != "Message" {
+		t.Errorf("expected %s, actual %s", "Message", lastLog[2])
+	}
+
+	if lastLog[3] != "defaultKey=defaultValue" {
+		t.Errorf("expected %s, actual %s", "defaultKey=defaultValue", lastLog[3])
+	}
+}

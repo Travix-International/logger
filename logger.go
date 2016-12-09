@@ -11,16 +11,23 @@ import (
  * Base struct
  */
 type Logger struct {
-	transports []*Transport
+	transports  []*Transport
+	DefaultMeta map[string]string
 }
 
 /**
- * Transport methods
+ * General methods
  */
 func (l *Logger) AddTransport(t ...*Transport) *Logger {
 	for _, transport := range t {
 		l.transports = append(l.transports, transport)
 	}
+
+	return l
+}
+
+func (l *Logger) SetDefaultMeta(meta map[string]string) *Logger {
+	l.DefaultMeta = meta
 
 	return l
 }
@@ -64,11 +71,19 @@ func (l *Logger) ErrorWithMeta(event string, message string, meta map[string]str
  * Common log method
  */
 func (l *Logger) Log(level string, event string, message string, meta map[string]string) error {
+	combinedMeta := make(map[string]string)
+	for k, v := range l.DefaultMeta {
+		combinedMeta[k] = v
+	}
+	for k, v := range meta {
+		combinedMeta[k] = v
+	}
+
 	entry := NewEntry(
 		level,
 		event,
 		message,
-		meta,
+		combinedMeta,
 	)
 
 	var wg sync.WaitGroup
@@ -128,6 +143,7 @@ out:
 func New() *Logger {
 	l := &Logger{
 		[]*Transport{},
+		make(map[string]string),
 	}
 
 	return l
