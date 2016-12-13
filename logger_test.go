@@ -200,3 +200,33 @@ func TestLoggerWithNilMeta(t *testing.T) {
 		t.Error("expected error with uninitialized meta")
 	}
 }
+
+func TestLoggerWithFilteredTransport(t *testing.T) {
+	log, _ := New(make(map[string]string))
+
+	filteredTestTransport := NewTransport(testWrite, testFormat)
+	filteredTestTransport.filter = FilterByMinimumLevel(NewLevelFilter("Warning"))
+	log.AddTransport(filteredTestTransport)
+
+	testWrite.clearLogs()
+
+	log.Debug("TEST", "Message 1")
+	log.Info("TEST", "Message 2")
+	log.Warn("TEST", "Message 3")
+	log.Error("TEST", "Message 4")
+
+	logs := testWrite.lastLogs
+	expectedLen := 2 // 2 out of 4 messages were allowed
+	if len(logs) != expectedLen {
+		t.Errorf("Found %v entries, expected %v", len(logs), expectedLen)
+	}
+
+	if !strings.Contains(logs[0], "Message 3") {
+		t.Errorf("Message [0] has unpexted value: %s", logs[0])
+	}
+	if !strings.Contains(logs[1], "Message 4") {
+		t.Errorf("Message [1] has unpexted value: %s", logs[1])
+	}
+
+	testWrite.clearLogs()
+}

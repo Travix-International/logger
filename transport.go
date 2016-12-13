@@ -4,9 +4,12 @@ import (
 	"io"
 )
 
+type FilterFunc func(e *Entry) bool
+
 type Transport struct {
 	destination io.Writer
 	formatter   Formatter
+	filter      FilterFunc
 }
 
 type Formatter interface {
@@ -17,6 +20,7 @@ func NewTransport(w io.Writer, f Formatter) *Transport {
 	return &Transport{
 		w,
 		f,
+		FilterAllowAll(),
 	}
 }
 
@@ -30,4 +34,11 @@ func (t *Transport) log(e *Entry) (err error) {
 	_, err = t.destination.Write([]byte(whatToWrite))
 
 	return err
+}
+
+// FilterAllowAll returns a function that will allow any entry, regardless of its contents
+func FilterAllowAll() FilterFunc {
+	return func(e *Entry) bool {
+		return true
+	}
 }

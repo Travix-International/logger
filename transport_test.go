@@ -37,3 +37,18 @@ func TestTransportWithFaultyFormat(t *testing.T) {
 		t.Error("expected error from TestFaultyFormat")
 	}
 }
+
+func TestFilterAllowAll(t *testing.T) {
+	filter := FilterAllowAll()
+	if filter == nil {
+		t.Error("Failed ot create filter")
+	}
+
+	if !filter(nil) {
+		t.Error("Expected nil entry to be allowed")
+	}
+
+	if !filter(&Entry{Level: "Debug"}) {
+		t.Error("Expected entry to be allowed")
+	}
+}
