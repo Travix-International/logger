@@ -51,6 +51,11 @@ func main() {
     myLogger.Log("CustomLevelName", "EventName", "message...", map[string]string {
       "key": "value"
     })
+
+    // Level filtering (define per transport!)
+    filteredTransport := logger.NewTransport( ... )
+    filteredTransport.filter = logger.FilterByMinimumLevel(logger.NewLevelFilter("Warning"))
+    myLogger.AddTransport(filteredTransport)
 }
 ```
 

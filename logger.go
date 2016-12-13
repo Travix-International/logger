@@ -80,10 +80,12 @@ func (l *Logger) Log(level string, event string, message string, meta map[string
 		wg.Add(1)
 
 		go func(transport *Transport) {
-			err := transport.log(entry)
+			if transport.filter(entry) {
+				err := transport.log(entry)
 
-			if err != nil {
-				e <- err
+				if err != nil {
+					e <- err
+				}
 			}
 
 			wg.Done()
