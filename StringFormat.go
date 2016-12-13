@@ -11,9 +11,10 @@ type StringFormat struct {
 	messageFormat     string
 	metaKeyFormat     string
 	metaMessageFormat string
+	lineSuffix        string
 }
 
-func NewStringFormat(levelFormat, eventFormat, messageFormat, metaKeyFormat, metaMessageFormat string) *StringFormat {
+func NewStringFormat(levelFormat, eventFormat, messageFormat, metaKeyFormat, metaMessageFormat, lineSuffix string) *StringFormat {
 	if len(levelFormat) == 0 {
 		return DefaultStringFormat
 	}
@@ -24,6 +25,7 @@ func NewStringFormat(levelFormat, eventFormat, messageFormat, metaKeyFormat, met
 		messageFormat,
 		metaKeyFormat,
 		metaMessageFormat,
+		lineSuffix,
 	}
 }
 
@@ -49,6 +51,8 @@ func (s *StringFormat) Format(e *Entry) (out string, err error) {
 			buf.WriteString(fmt.Sprintf(s.metaMessageFormat, v))
 		}
 	}
+
+	buf.Write([]byte(s.lineSuffix))
 
 	return buf.String(), nil
 }

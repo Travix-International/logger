@@ -6,7 +6,7 @@ import (
 )
 
 func TestStringFormat(t *testing.T) {
-	var testStringFormat = NewStringFormat("[%s]", " %s: ", "%s", "\n%s=", "%s")
+	var testStringFormat = NewStringFormat("[%s]", " %s: ", "%s", "\n%s=", "%s", "\nend\n")
 
 	var testMeta = make(map[string]string)
 	testMeta["foo"] = "bar"
@@ -46,12 +46,16 @@ func TestStringFormat(t *testing.T) {
 					t.Errorf("expected to find meta %s, actual %s", m, actual)
 				}
 			}
+
+			if strings.HasSuffix(actual, testStringFormat.lineSuffix) != true {
+				t.Errorf("expected to end with %s, actual %s", testStringFormat.lineSuffix, actual)
+			}
 		})
 	}
 }
 
 func TestStringFormatWithNoEntry(t *testing.T) {
-	var testStringFormat = NewStringFormat("[%s]", " %s: ", "%s", "\n%s=", "%s")
+	var testStringFormat = NewStringFormat("[%s]", " %s: ", "%s", "\n%s=", "%s", "")
 
 	str, err := testStringFormat.Format(nil)
 
@@ -65,7 +69,7 @@ func TestStringFormatWithNoEntry(t *testing.T) {
 }
 
 func TestStringFormatWithNoLevel(t *testing.T) {
-	var testStringFormat = NewStringFormat("", " %s: ", "%s", "%s", "%s")
+	var testStringFormat = NewStringFormat("", " %s: ", "%s", "%s", "%s", "")
 	var testMeta = make(map[string]string)
 	testMeta["key"] = "value"
 
