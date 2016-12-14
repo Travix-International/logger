@@ -24,6 +24,11 @@ func NewTransport(w io.Writer, f Formatter) *Transport {
 	}
 }
 
+// SetFilter chnages the message filtering to the given filter function.
+func (t *Transport) SetFilter(fn FilterFunc) {
+	t.filter = fn
+}
+
 func (t *Transport) log(e *Entry) (err error) {
 	whatToWrite, err := t.formatter.Format(e)
 

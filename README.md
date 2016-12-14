@@ -54,7 +54,7 @@ func main() {
 
     // Level filtering (define per transport!)
     filteredTransport := logger.NewTransport( ... )
-    filteredTransport.filter = logger.FilterByMinimumLevel(logger.NewLevelFilter("Warning"))
+    filteredTransport.SetFilter(logger.FilterByMinimumLevel(logger.NewLevelFilter("Warning")))
     myLogger.AddTransport(filteredTransport)
 }
 ```

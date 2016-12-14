@@ -52,3 +52,8 @@ func TestFilterAllowAll(t *testing.T) {
 		t.Error("Expected entry to be allowed")
 	}
 }
+
+func TestSetFilter(t *testing.T) {
+	var testTransport = NewTransport(os.Stdout, DefaultStringFormat)
+	testTransport.SetFilter(FilterByMinimumLevel(NewLevelFilter("Warning")))
+}
