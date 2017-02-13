@@ -19,6 +19,7 @@ func TestJSONFormat(t *testing.T) {
 		Expected string
 	}{
 		{"Info", "EventName", "Message...", testMeta, `{"level":"Info","event":"EventName","message":"Message...","key":"value"}`},
+		{"Info", "EventName", "a\\U\"", testMeta, `{"level":"Info","event":"EventName","message":"a\\U\"","key":"value"}`}, // Test if special characters are escaped.
 		{"Debug", "EventName", "blah...", testMeta, `{"level":"Debug","event":"EventName","message":"blah...","key":"value"}`},
 		{"Error", "EventName", "blah...", testMeta, `{"level":"Error","event":"EventName","message":"blah...","key":"value"}`},
 	}
