@@ -1,5 +1,7 @@
 # logger
 
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/4b4f93142c4d4f80ae386898a310e0e4)](https://www.codacy.com/app/me_102/logger?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Travix-International/logger&amp;utm_campaign=badger)
 [![version](https://img.shields.io/github/tag/Travix-International/logger.svg)](https://github.com/Travix-International/logger) [![Build Status](https://img.shields.io/travis/Travix-International/logger/master.svg)](http://travis-ci.org/Travix-International/logger)
 
 > Logger library in Go
